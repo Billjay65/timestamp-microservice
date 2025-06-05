@@ -24,6 +24,36 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+// Unix timestamp date api using route and query parameter
+app.get("/api/:date", function (req, res) {
+  const dateParam = req.params.date;
+  let date;
+  let utcDateStr;
+
+  // Check if dateParam is integer
+  if (!isNaN(dateParam) && /^\d+$/.test(dateParam)) {
+    console.log(dateParam);
+
+    // Convert to date string
+    date = new Date(parseInt(dateParam));
+    utcDateStr = date.toUTCString();
+
+    // Return unix integer and not parameter
+    return res.json({
+      unix: parseInt(dateParam), 
+      utc: utcDateStr
+    })
+  }
+
+  const unixTimestampMillisecs = new Date(dateParam).getTime();
+  utcDateStr = new Date(dateParam).toUTCString();
+
+  res.json({
+    unix: unixTimestampMillisecs,
+    utc: utcDateStr
+  })
+});
+
 
 
 // Listen on port set in environment variable or default to 3000

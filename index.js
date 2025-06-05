@@ -24,25 +24,51 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-// Unix timestamp date api using route and query parameter
-app.get("/api/:date", function (req, res) {
+// Unix timestamp date api using route parameter
+// The ? makes the :date parameter optional.
+app.get("/api/:date?", function (req, res) {
   const dateParam = req.params.date;
   let date;
   let utcDateStr;
+  
+  // If no date param, return current time
+  if (!dateParam) {
+    date = new Date();
 
-  // Check if dateParam is integer
-  if (!isNaN(dateParam) && /^\d+$/.test(dateParam)) {
-    console.log(dateParam);
-
+    res.json({
+      unix: date.getTime(),
+      utc: date.toUTCString()
+    })
+  }
+  // Check if dateParam is a valid integer
+  else if (!isNaN(dateParam) && /^\d+$/.test(dateParam)) {
     // Convert to date string
     date = new Date(parseInt(dateParam));
     utcDateStr = date.toUTCString();
 
-    // Return unix integer and not parameter
+    // Check if date is invalid and return error
+    if (isNaN(date.getTime())) {
+      return res.json({
+        error: "Invalid Date"
+      });
+    }
+    
+    // Return unix integer and not date parameter
     return res.json({
       unix: parseInt(dateParam), 
       utc: utcDateStr
-    })
+    });
+  }
+  // Otherwise treat it as a date string
+  else {
+    date = new Date(dateParam);
+  }
+
+  // Check if date is invalid and return error
+  if (isNaN(date.getTime())) {
+    return res.json({
+      error: "Invalid Date"
+    });
   }
 
   const unixTimestampMillisecs = new Date(dateParam).getTime();
@@ -51,7 +77,7 @@ app.get("/api/:date", function (req, res) {
   res.json({
     unix: unixTimestampMillisecs,
     utc: utcDateStr
-  })
+  });
 });
 
 
